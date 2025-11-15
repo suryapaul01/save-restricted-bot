@@ -98,7 +98,7 @@ class Database:
         
         # Check limits
         is_premium_user = await self.is_premium(user_id)
-        limit = 100 if is_premium_user else 10  # Premium: 100/day, Free: 10/day
+        limit = 1000 if is_premium_user else 10  # Premium: 1000/day, Free: 10/day
         
         if downloads_today >= limit:
             return False  # Limit exceeded

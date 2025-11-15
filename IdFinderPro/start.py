@@ -107,7 +107,7 @@ async def send_start(client: Client, message: Message):
     
     login_emoji = "✅" if user_data else "❌"
     premium_emoji = "💎" if is_premium_user else "🆓"
-    limit = 100 if is_premium_user else 10
+    limit = 1000 if is_premium_user else 10
     
     start_text = f"""👋 **Welcome {message.from_user.first_name}!**
 
@@ -241,7 +241,7 @@ async def callback_handler(client: Client, query):
         # Redirect to premium menu
         is_premium_user = await db.is_premium(query.from_user.id)
         downloads_today = await db.get_download_count(query.from_user.id)
-        limit = 100 if is_premium_user else 10
+        limit = 1000 if is_premium_user else 10
         
         if is_premium_user:
             user = await db.col.find_one({'id': query.from_user.id})
@@ -258,10 +258,10 @@ async def callback_handler(client: Client, query):
 ✅ You have Premium!
 
 {expiry_text}
-Usage: {downloads_today}/100 today
+Usage: {downloads_today}/1000 today
 
 **Benefits:**
-✅ 100 downloads/day
+✅ 1000 downloads/day
 ✅ Priority support
 ✅ Faster processing"""
             buttons = [[InlineKeyboardButton("🏠 Main Menu", callback_data="start")]]
@@ -272,13 +272,13 @@ Usage: {downloads_today}/100 today
 **Usage:** {downloads_today}/10 today
 
 **Premium Benefits:**
-✅ 100 downloads/day (vs 10)
+✅ 1000 downloads/day (vs 10)
 ✅ Priority support
 ✅ Faster processing
 
 **Pricing:**
-• ₹20 (≈ 0.24 USDT) - 1 Day
-• ₹50 (≈ 0.60 USDT) - 7 Days  
+• ₹10 (≈ 0.12 USDT) - 1 Day
+• ₹40 (≈ 0.48 USDT) - 7 Days
 • ₹100 (≈ 1.20 USDT) - 30 Days
 
 **How to Purchase:**
@@ -453,14 +453,14 @@ async def save(client: Client, message: Message):
         can_download = await db.check_and_update_downloads(message.from_user.id)
         if not can_download:
             is_premium_user = await db.is_premium(message.from_user.id)
-            limit = 100 if is_premium_user else 10
+            limit = 1000 if is_premium_user else 10
             buttons = [[InlineKeyboardButton("💎 Upgrade to Premium", callback_data="premium_info")]]
             return await message.reply(
                 f"**❌ Daily Limit Reached!**\n\n"
                 f"You've used all {limit} downloads for today.\n\n"
                 f"**Upgrade to Premium:**\n"
                 f"• Free: 10/day\n"
-                f"• Premium: 100/day\n\n"
+                f"• Premium: 1000/day\n\n"
                 f"Use /premium to upgrade!",
                 reply_markup=InlineKeyboardMarkup(buttons)
             )

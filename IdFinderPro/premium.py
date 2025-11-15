@@ -9,6 +9,9 @@ from config import ADMINS
 # Store active redeem codes (in production, use database)
 redeem_codes = {}
 
+# Store generation state for admins
+generation_state = {}
+
 # Generate redeem code
 @Client.on_message(filters.private & filters.command(["generate"]) & filters.user(ADMINS))
 async def generate_redeem_code(client: Client, message: Message):
@@ -22,6 +25,64 @@ async def generate_redeem_code(client: Client, message: Message):
         "**🎟️ Generate Redeem Code**\n\nSelect duration:",
         reply_markup=InlineKeyboardMarkup(buttons)
     )
+
+# Handle quantity input from admin
+@Client.on_message(filters.private & filters.text & filters.user(ADMINS))
+async def handle_quantity_input(client: Client, message: Message):
+    """Handle quantity input for code generation"""
+    # Check if admin has pending generation state
+    if message.from_user.id not in generation_state:
+        return  # Not in generation flow, ignore
+
+    # Get the quantity
+    try:
+        quantity = int(message.text.strip())
+    except ValueError:
+        await message.reply("❌ **Invalid input!** Please enter a number between 1 and 50.")
+        return
+
+    # Validate quantity
+    if quantity < 1 or quantity > 50:
+        await message.reply("❌ **Invalid quantity!** Please enter a number between 1 and 50.")
+        return
+
+    # Get days from state
+    days = generation_state[message.from_user.id]['days']
+
+    # Generate codes
+    codes_list = []
+    for _ in range(quantity):
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+
+        # Store code
+        redeem_codes[code] = {
+            'days': days,
+            'generated_by': message.from_user.id,
+            'generated_at': time.time()
+        }
+
+        codes_list.append(code)
+
+    # Clear generation state
+    del generation_state[message.from_user.id]
+
+    # Format codes in monospace
+    codes_text = "\n".join([f"`{code}`" for code in codes_list])
+
+    await message.reply(f"""
+✅ **{quantity} Redeem Code(s) Generated!**
+
+**Duration:** {days} day(s)
+**Codes:**
+
+{codes_text}
+
+**Instructions:**
+Share these codes with users. They can redeem using:
+`/redeem <code>`
+
+**Note:** Each code is single-use and will be deleted after redemption.
+""")
 
 # Premium membership menu
 @Client.on_message(filters.private & filters.command(["premium"]))
@@ -45,10 +106,10 @@ async def premium_menu(client: Client, message: Message):
 ✅ You have Premium!
 
 {expiry_text}
-**Usage Today:** {downloads_today}/100
+**Usage Today:** {downloads_today}/1000
 
 **Benefits:**
-✅ 100 downloads/day
+✅ 1000 downloads/day
 ✅ Priority support
 ✅ Faster processing
 
@@ -61,13 +122,13 @@ Use `/redeem` to extend membership."""
 **Usage Today:** {downloads_today}/10
 
 **Premium Benefits:**
-✅ 100 downloads/day (vs 10)
-✅ Priority support  
+✅ 1000 downloads/day (vs 10)
+✅ Priority support
 ✅ Faster processing
 
 **💰 Pricing:**
-• **₹20** (≈ 0.24 USDT) - 1 Day
-• **₹50** (≈ 0.60 USDT) - 7 Days
+• **₹10** (≈ 0.12 USDT) - 1 Day
+• **₹40** (≈ 0.48 USDT) - 7 Days
 • **₹100** (≈ 1.20 USDT) - 30 Days
 
 **How to Purchase:**
@@ -121,7 +182,7 @@ async def redeem_code(client: Client, message: Message):
 **Expires:** {expiry_date}
 
 **Benefits:**
-• 100 downloads per day
+• 1000 downloads per day
 • Priority support
 • Faster downloads
 
@@ -198,8 +259,8 @@ async def on_successful_payment(client: Client, message: Message):
 **Expires:** {expiry_date}
 
 **Benefits:**
-• 100 downloads per day
-• Priority support  
+• 1000 downloads per day
+• Priority support
 • Faster downloads
 
 Thank you for your support! 🎉
@@ -212,27 +273,18 @@ async def premium_callback_handler(client: Client, query):
     
     if data.startswith("gen_"):
         days = int(data.split("_")[1])
-        
-        # Generate random code
-        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-        
-        # Store code
-        redeem_codes[code] = {
-            'days': days,
-            'generated_by': query.from_user.id,
-            'generated_at': time.time()
-        }
-        
+
+        # Store the days in generation state
+        generation_state[query.from_user.id] = {'days': days}
+
         await query.message.edit_text(f"""
-✅ **Redeem Code Generated!**
+**🎟️ Generate Redeem Codes**
 
-**Code:** `{code}`
-**Duration:** {days} day(s)
+**Selected Duration:** {days} day(s)
 
-Share this code with users. They can redeem it using:
-`/redeem {code}`
+**Please enter the quantity of codes to generate (1-50):**
 
-**Note:** Code is single-use and will be deleted after redemption.
+Type a number between 1 and 50 to generate that many codes.
 """)
     
     elif data.startswith("removepremium_"):

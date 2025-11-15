@@ -19,7 +19,7 @@ First send invite link to join, then send post link.
 
 **💎 Rate Limits:**
 • Free: 10 downloads/day
-• Premium: 100 downloads/day
+• Premium: 1000 downloads/day
 
 Use /premium to upgrade!
 
@@ -51,13 +51,13 @@ Example: `https://t.me/channel/1-50`
 PREMIUM_HELP = """**💎 Premium Membership**
 
 **Benefits:**
-✅ 100 downloads per day (vs 10 free)
+✅ 1000 downloads per day (vs 10 free)
 ✅ Priority support
 ✅ Faster processing
 
 **Pricing:**
-• ₹20 (0.24 USDT) - 1 Day
-• ₹50 (0.60 USDT) - 7 Days
+• ₹10 (0.12 USDT) - 1 Day
+• ₹40 (0.48 USDT) - 7 Days
 • ₹100 (1.20 USDT) - 30 Days
 
 **How to Upgrade:**
