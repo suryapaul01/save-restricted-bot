@@ -619,8 +619,13 @@ async def export_data(client: Client, message: Message):
 
 @Client.on_message(filters.text & filters.private)
 async def save(client: Client, message: Message):
+    # Normalize link if it uses telegram.me instead of t.me
+    msg_text = message.text
+    if "telegram.me" in msg_text:
+        msg_text = msg_text.replace("telegram.me", "t.me")
+        
     # Handle invite links
-    if "/+" in message.text or "/joinchat/" in message.text:
+    if "/+" in msg_text or "/joinchat/" in msg_text:
         user_data = await db.get_session(message.from_user.id)
         if user_data is None:
             return await message.reply("**🔐 Please /login first to join channels.**")
@@ -630,7 +635,7 @@ async def save(client: Client, message: Message):
             await acc.connect()
             
             # Extract invite hash
-            invite_link = message.text.strip()
+            invite_link = msg_text.strip()
             
             try:
                 chat = await acc.join_chat(invite_link)
@@ -647,7 +652,7 @@ async def save(client: Client, message: Message):
             await message.reply(f"❌ **Error:** `{e}`\n\nPlease try `/logout` then `/login` again.")
         return
     
-    if "https://t.me/" in message.text:
+    if "https://t.me/" in msg_text:
         # BAN CHECK - Block banned users
         banned_info = await db.is_banned(message.from_user.id)
         if banned_info:
@@ -674,7 +679,7 @@ Contact @tataa_sumo if you want to get unbanned.
             )
         
         # PARSE MESSAGE RANGE
-        datas = message.text.split("/")
+        datas = msg_text.split("/")
         temp = datas[-1].replace("?single","").split("-")
         fromID = int(temp[0].strip())
         try:
@@ -721,7 +726,7 @@ Contact @tataa_sumo if you want to get unbanned.
                 return await message.reply("**Your Login Session Expired. So /logout First Then Login Again By - /login**")
             
             # private
-            if "https://t.me/c/" in message.text:
+            if "https://t.me/c/" in msg_text:
                 chatid = int("-100" + datas[4])
                 try:
                     await handle_private(client, acc, message, chatid, msgid)
@@ -730,7 +735,7 @@ Contact @tataa_sumo if you want to get unbanned.
                         await client.send_message(message.chat.id, f"❌ **Error:** `{e}`\n\n💡 If the error persists, try `/logout` and `/login` again.", reply_to_message_id=message.id)
     
             # bot
-            elif "https://t.me/b/" in message.text:
+            elif "https://t.me/b/" in msg_text:
                 username = datas[4]
                 try:
                     await handle_private(client, acc, message, username, msgid)

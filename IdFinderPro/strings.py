@@ -9,10 +9,10 @@ HELP_TXT = """**📖 HELP - Restricted Content Download Bot**
 **📥 How to Download:**
 
 **Single Post:**
-`https://t.me/channel/123`
+`https://t.me/channel/123` or `https://telegram.me/channel/123`
 
 **Multiple Posts (Batch):**
-`https://t.me/channel/100-110`
+`https://t.me/channel/100-110` or `https://telegram.me/channel/100-110`
 
 **Private Channel:**
 First send invite link to join, then send post link.
@@ -30,20 +30,20 @@ DOWNLOAD_HELP = """**📥 How to Download**
 
 **For Public Channels:**
 Just send the post link:
-`https://t.me/channelname/123`
+`https://t.me/channelname/123` or `https://telegram.me/channelname/123`
 
 **For Private Channels:**
 1. Send invite link first:
-   `https://t.me/+InviteHash`
+   `https://t.me/+InviteHash` or `https://telegram.me/+InviteHash`
 2. Then send post link:
-   `https://t.me/c/123456789/100`
+   `https://t.me/c/123456789/100` or `https://telegram.me/c/123456789/100`
 
 **For Bots:**
-`https://t.me/b/botusername/4321`
+`https://t.me/b/botusername/4321` or `https://telegram.me/b/botusername/4321`
 
 **Batch Download:**
 Send range: `link/start-end`
-Example: `https://t.me/channel/1-50`
+Example: `https://t.me/channel/1-50` or `https://telegram.me/channel/1-50`
 
 **Note:** Spaces don't matter in ranges.
 """
